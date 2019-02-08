@@ -1,38 +1,40 @@
-import React, { Component, useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import logo from './logo.svg';
-import UsrHub from 'usrhub';
+import UsrHub, { useHubState } from 'usrhub';
 import './App.css';
 
 function Example() {
-  const [count, setCount] = useState(0);
-  
-  const func = (state) => {
-    setCount(state.count)
-  }
 
-  const hub = UsrHub({secret_key: "TP", usr: {name: "Paul"}, hub: {name: "hub:1"}, func});
+  const hub = useContext(Context);
+  const [data, setData] = useState(hub.state);
+
+  hub.makeTrigger((data) => {setData(data)});
   
   return (
     <div>
-      <p>You clicked {count} times</p>
-      <button onClick={() => hub.call("inc", {"count": count})}>
+      <p>You clicked {data.count} times</p>
+      <button onClick={() => hub.call("inc", data)}>
         Click me
       </button>
     </div>
   );
 }
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <Example />
-        </header>
-      </div>
-    );
-  }
-}
+const Context = React.createContext();
 
+function App() {
+
+  const hub = UsrHub({secret_key: "TP", usr: {name: "Paul"}, hub: {name: "hub:1"}});
+  
+  return (
+    <Context.Provider value={hub}>
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <Example />
+      </header>
+    </div>
+    </Context.Provider>
+  );
+}
 export default App;
