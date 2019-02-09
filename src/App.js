@@ -4,16 +4,31 @@ import UsrHub, { useHubState } from 'usrhub';
 import './App.css';
 
 function Example() {
-
   const hub = useContext(Context);
   const [data, setData] = useState(hub.state);
+  const [enabled, enable] = useState(true);
 
-  hub.makeTrigger((data) => {setData(data)});
-  
+  hub.on("inc", (data) => {
+    setData(data)
+    enable(true)
+  });
+
+  useEffect(
+    () => {
+      console.log("useEffect");
+    },
+    []
+  );
+
+  const increment = () => {
+    enable(false);
+    hub.dispatch('inc', data);
+  }
+
   return (
     <div>
       <p>You clicked {data.count} times</p>
-      <button onClick={() => hub.call("inc", data)}>
+      <button disabled={!enabled} onClick={() => increment()}>
         Click me
       </button>
     </div>
